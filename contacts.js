@@ -16,12 +16,9 @@ if (!fs.existsSync(filePath)) {
 }
 
 // MEMBUAT ARRAY BARU JIKA GAK ADA
-const data = "[]";
-fs.readFile(filePath, (err, data) => {
-    if (err) throw err;
-    fs.writeFileSync(filePath, '[]', 'utf-8');
-});
-
+if(!fs.readFileSync('./data/contacts.json', 'utf-8')){
+    fs.writeFileSync('./data/contacts.json', '[]', 'utf-8');
+}
 
 // MEMBUAT INTERFACE 
 const rl = readline.createInterface({
@@ -33,29 +30,29 @@ const rl = readline.createInterface({
 
 const datapPertanyaan = (pertanyaan) => {
     return new Promise((resolve, reject) => {
-        rl.question(pertanyaan, (nama) => {
-            resolve(nama);
+        rl.question(pertanyaan, (name) => {
+            resolve(name);
         });
     });
 };
 
 
-const simpanContacts = (nama, email, telpon) => {
+const simpanContacts = (name, email, telpon) => {
     const em = validator.isEmail(email);
     const hp = validator.isMobilePhone(telpon, 'id-ID');
     if (em === true && hp === true) {
         const filePath = './data/contacts.json';
         const contact = {
-            nama,
+            name,
             email,
             telpon
         };
         const read = fs.readFileSync(filePath, 'utf-8');
-        const parse = JSON.parse(read);
+        const contacts = JSON.parse(read);
 
-        parse.push(contact);
+        contacts.push(contact);
 
-        const hasil = fs.writeFileSync(filePath, JSON.stringify(parse), 'utf-8');
+        const hasil = fs.writeFileSync(filePath, JSON.stringify(contacts), 'utf-8');
         console.log('terima kasih telah memasukan data');
     } else {
         rl.close();
