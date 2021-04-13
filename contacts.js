@@ -1,5 +1,5 @@
+const chalk = require('chalk');
 const fs = require('fs');
-const readline = require('readline');
 const validator = require('validator');
 
 
@@ -16,50 +16,99 @@ if (!fs.existsSync(filePath)) {
 }
 
 // MEMBUAT ARRAY BARU JIKA GAK ADA
-if(!fs.readFileSync('./data/contacts.json', 'utf-8')){
+if (!fs.readFileSync('./data/contacts.json', 'utf-8')) {
     fs.writeFileSync('./data/contacts.json', '[]', 'utf-8');
 }
 
-// MEMBUAT INTERFACE 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdin,
 
-});
+const loadContact = () => {
+    const read = fs.readFileSync('./data/contacts.json', 'utf-8');
+    const contacts = JSON.parse(read);
 
-
-const datapPertanyaan = (pertanyaan) => {
-    return new Promise((resolve, reject) => {
-        rl.question(pertanyaan, (name) => {
-            resolve(name);
-        });
-    });
+    return contacts;
 };
-
 
 const simpanContacts = (name, email, telpon) => {
-    const em = validator.isEmail(email);
-    const hp = validator.isMobilePhone(telpon, 'id-ID');
-    if (em === true && hp === true) {
-        const filePath = './data/contacts.json';
-        const contact = {
-            name,
-            email,
-            telpon
-        };
-        const read = fs.readFileSync(filePath, 'utf-8');
-        const contacts = JSON.parse(read);
+    const filePath = './data/contacts.json';
+    const contact = {
+        name,
+        email,
+        telpon
+    };
 
-        contacts.push(contact);
+    const contacts = loadContact();
 
-        const hasil = fs.writeFileSync(filePath, JSON.stringify(contacts), 'utf-8');
-        console.log('terima kasih telah memasukan data');
-    } else {
-        rl.close();
-        console.log('Maap ada kesalahan');
+    // CEK 
+    const duplicate = contacts.find((contact) => contact.name === name);
+    if (duplicate) {
+        console.log('Data Sudah Ada');
+        return false;
     }
-    rl.close();
+    // Cek telpon 
+    if (!validator.isMobilePhone(telpon, 'id-ID')) {
+        console.log(chalk.white.bgRed('Maaf Telpon Yang Anda Masukan Tidak Valid'));
+        return false;
+    }
+    if (!validator.isEmail(email)) {
+        console.log(chalk.white.bgRed('Maaf Email Yang Anda Masukan Tidak Valid'));
+        return false;
+    }
+
+    contacts.push(contact);
+
+    const hasil = fs.writeFileSync(filePath, JSON.stringify(contacts), 'utf-8');
+    console.log(chalk.black.bgGreen('terima kasih telah memasukan data'));
+
 };
 
+// HAPUS
+const hapusContacts = (name) => {
+   const contacts = loadContact();
+   const contact = {name};
+   const new_contacts = contacts.filter((contact) => contact.name.toLowerCase() !== name.toLowerCase());
 
-module.exports = { simpanContacts, datapPertanyaan };
+   if (contacts.length === new_contacts.length) {
+    console.log(`${name} Tidak Di Temukan`);
+    return false;
+    }
+    
+    const hasil = fs.writeFileSync('./data/contacts.json', JSON.stringify(new_contacts), 'utf-8');
+    console.log(chalk.black.bgGreen(`${name} Berhasil Di Hapus`));
+  
+
+}
+
+// LIST
+const listContact = () => {
+    const contacts = loadContact();
+    console.log(chalk.white.bgBlue('DAFTAR NAMA KONTAK TERDAFTAR'));
+    contacts.forEach((contact, i) => {
+        console.log(`${ i + 1 }. ${contact.name} - ${contact.telpon}`);
+    })
+}
+
+
+// DETAIL 
+const detailContact = (name) => {
+    const contacts = loadContact();
+
+    const search = contacts.find((contact) => contact.name.toLowerCase() === name.toLowerCase());
+    if (!search) {
+        console.log(chalk.white.bgRed(`${name} Tidak Di Temukan.`));
+        return false;
+    }
+    console.log(chalk.white.bgBlack('Nama : ' + search.name));
+    console.log(chalk.white.bgBlack('Telpon : ' + search.telpon));
+    if (search.email) {
+        console.log('Email : ' + search.email);
+
+    }
+
+}
+
+module.exports = {
+    simpanContacts,
+    hapusContacts,
+    listContact,
+    detailContact
+};

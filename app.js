@@ -1,10 +1,8 @@
 const yargs = require("yargs");
 const contacts = require('./contacts');
 
-yargs.command('add', 'Menambahkan Kontak Baru', () => {}, (argv) => {
-    console.log(argv.name);
-});
 
+// TAMBAH KONTAK
 yargs.command({
     command: 'add',
     describe: 'Menambahkan Kontak Baru',
@@ -29,24 +27,59 @@ yargs.command({
     contacts.simpanContacts(argv.name, argv.email, argv.telpon);
     
     },
+}).demandCommand();
+
+
+// HAPUS KONTAK
+yargs.command({
+    command: 'rem',
+    describe: 'Menghapus Kontak',
+    builder: {
+        name: {
+            demandOption: true,
+            describe: "Nama",
+            type: 'string'
+        },  
+    },
+    handler(argv){
+        // const contact = {
+        //     name: argv.name,
+        //     email: argv.email,
+        //     telpon: argv.telpon
+        // }
+        contacts.hapusContacts(argv.name);
+
+    },
+});
+
+// MENAMPILKAN
+yargs.command({
+    command: 'list',
+    describe: 'Menampilkan Semua Kontak Nama dan Telpon',
+    builder: {},
+    handler(){
+        contacts.listContact();
+    },
+});
+
+
+
+// MENAMPILKAN DETAIL
+yargs.command({
+    command: 'detail',
+    describe: 'Menampilkan Detail Kontak Berdasarkan Nama',
+    builder: {
+        name: {
+            demandOption: true,
+            describe: "Nama",
+            type: 'string'
+        }
+    },
+    handler(argv){
+        contacts.detailContact(argv.name);
+    },
 });
 
 yargs.parse();
 
 
-
-
-
-
-// const { simpanContacts, datapPertanyaan } = require('./contacts');
-
-
-// const main = async () => {
-//     const nama = await datapPertanyaan('Nama : ');
-//     const email = await datapPertanyaan('Email : ');
-//     const telpon = await datapPertanyaan('Telpon : ');
-
-    
-//     simpanContacts(nama, email, telpon);
-// };
-// main();

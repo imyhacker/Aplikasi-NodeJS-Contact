@@ -1,6 +1,6 @@
 {
   "name": "CONTACT-APP Sederhana",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Sebuah Aplikasi Sederhana Mengelola Kontak",
   "main": "app.js",
   "scripts": {
